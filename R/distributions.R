@@ -1,192 +1,313 @@
-
-sim_fixed <- function(mean = 0, params = NULL) {
-  e <- caller_env(n = 1)$.top_env
-  res <- e$data
-  n <- nrow(res)
-  prms <- params[["mean"]] %||% params
-  # effects
-  evars <- names(prms)
-  eff <- data.frame(row.names = seq(n))
-  for(avar in evars) {
-    if(is_formula(prms[[avar]])) {
-      prms[[avar]] <- eval_tidy(get_expr(prms[[avar]]),
-                                list(data = e$data, var = avar))
-    }
-    eff[[avar]] <- true_effects(res[[avar]], prms[[avar]])
-  }
-  # mean
-  if(is_formula(mean)) {
-    vars <- all.vars(mean)
-    check_var_exists(res %@% "design", label = unique(c(vars, evars)))
-    mean <- eval(get_expr(do.call("substitute", list(mean, eff))))
-  }
-  list(values = mean, effects = eff)
+#' Simulation framework for a fixed mean structure
+#'
+#' @param form A formula structure of the effects.
+#' @param params The list of parameters.
+#' @param data An optional data frame.
+#'
+#' @examples
+#' # simulate
+#' sim_fixed(mean = 3) %>%
+#'   simulate(10)
+#'
+#' sim_fixed(mean = ~grp)
+#'
+#' @family simulation frameworks
+#' @export
+sim_form <- function(form = 0, params = NULL, data = NULL) {
+  structure(deparse_to_char(form),
+            class = c("sim_form", "sim_distribution"),
+            args = context_args(input = list(form = form),
+                                params = params, data = data))
 }
 
 
+#' Simulation framework for Bernoulli random variable
+#'
+#' @inheritParams sim_form
+#' @param prob The probability of success
+#' @family simulation frameworks
+#' @export
+sim_bernoulli <- function(prob, params = NULL, data = NULL) {
+  validator <- list(quote(valid_prop(prob)))
+  structure(paste0("~Bernoulli(", deparse_to_char(prob), ")"),
+            class = c("sim_bernoulli", "sim_distribution"),
+            args = context_args(input = list(prob = prob),
+                                params = params, data = data,
+                                validator = validator))
+}
+
+
+
+#' Simulation framework for Beta random variable
+#'
+#' @inheritParams sim_form
+#' @param shape1,shape2 Parameters of the Beta distribution.
+#' @family simulation frameworks
+#' @export
 sim_beta <- function(shape1, shape2, params = NULL) {
-  info <- get_topenv_info()
-  prm_shape1 <- eval_effects(info$data, params$shape1, shape1, info$n)
-  prm_shape2 <- eval_effects(info$data, params$shape2, shape2, info$n)
-  list(values = stats::rbeta(info$n, prm_shape1$input, prm_shape2$input),
-       effects = list(shape1 = prm_shape1,
-                      shape2 = prm_shape2))
+  validator <- list(quote(valid_positive(shape1)),
+                    quote(valid_positive(shape2)))
+  structure(paste0("~Beta(", deparse_to_char(shape1), ", ", deparse_to_char(shape2), ")"),
+            class = c("sim_beta", "sim_distribution"),
+            args = context_args(input = list(shape1 = shape1, shape2 = shape2),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_cauchy <- function(location, scale, params = NULL) {
-  info <- get_topenv_info()
-  prm_location <- eval_effects(info$data, params$location, location, info$n)
-  prm_scale <- eval_effects(info$data, params$scale, scale, info$n)
-  list(values = stats::rcauchy(info$n, prm_location$input, prm_scale$input),
-       effects = list(shape1 = prm_location,
-                      shape2 = prm_scale))
+#' Simulation framework for Binomial random variable
+#'
+#' @inheritParams sim_form
+#' @inheritParams sim_bernoulli
+#' @param size The number of trials.
+#' @family simulation frameworks
+#' @export
+sim_binomial <- function(size, prob, params = NULL, data = NULL) {
+  validator <- list(quote(valid_integer(size)),
+                    quote(valid_positive(size)),
+                    quote(valid_prop(prob)))
+  structure(paste0("~Binomial(", deparse_to_char(size), ", ", deparse_to_char(prob), ")"),
+            class = c("sim_binomial", "sim_distribution"),
+            args = context_args(input = list(size = size, prob = prob),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_chisq <- function(df, ncp = 0, params = NULL) {
-  info <- get_topenv_info()
-  prm_df <- eval_effects(info$data, params$df, df, info$n)
-  prm_ncp <- eval_effects(info$data, params$ncp, ncp, info$n)
-  list(values = stats::rchisq(info$n, prm_df$input, prm_ncp$input),
-       effects = list(shape1 = prm_df,
-                      shape2 = prm_ncp))
+#' Simulation framework for Cauchy random variable
+#'
+#' @inheritParams sim_form
+#' @param location The location parameter.
+#' @param scale The scale parameter.
+#' @family simulation frameworks
+#' @export
+sim_cauchy <- function(location, scale, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(scale)))
+  structure(paste0("~Cauchy(", deparse_to_char(location), ", ", deparse_to_char(scale), ")"),
+            class = c("sim_cauchy", "sim_distribution"),
+            args = context_args(input = list(location = location, scale = scale),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_exponential <- function(rate, params = NULL) {
-  info <- get_topenv_info()
-  prm_rate <- eval_effects(info$data, params$rate, rate, info$n)
-  list(values = stats::rexp(info$n, prm_rate$input),
-       effects = list(rate = prm_rate))
+#' Simulation framework for Chi-square random variable
+#'
+#' @inheritParams sim_form
+#' @param df The degrees of freedom.
+#' @family simulation frameworks
+#' @export
+sim_chisq <- function(df, ncp = 0, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(df)),
+                    quote(valid_positive(ncp)))
+  structure(paste0("~Chisq(", deparse_to_char(df), ")"),
+            class = c("sim_chisq", "sim_distribution"),
+            args = context_args(input = list(df = df, ncp = ncp),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_f <- function(df1, df2, ncp = NULL, params = NULL) {
-  # supply NA for no ncp
-  info <- get_topenv_info()
-  prm_df1 <- eval_effects(info$data, params$df1, df1, info$n)
-  prm_df2 <- eval_effects(info$data, params$df2, df2, info$n)
-  prm_ncp <- eval_effects(info$data, params$ncp, ncp, info$n)
-  if(is.null(ncp)) {
-    values <- stats::rf(info$n, prm_df1$input, prm_df2$input)
-  } else {
-    values <- double(info$n)
-    if(length(prm_ncp$input) > 1) {
-      w <- is.na(prm_ncp$input)
-      values[w] <- stats::rf(sum(w), prms_df1$input[w], prms_df2$input[w], prms_ncp$input[w])
-      values[!w] <- stats::rf(sum(!w), prms_df1$input[!w], prms_df2$input[!w], prms_ncp$input[!w])
-    } else {
-      if(is.na(prm_ncp$input)) {
-        values <- stats::rf(info$n, prm_df1$input, prm_df2$input)
-      } else {
-        values <- stats::rf(info$n, prm_df1$input, prm_df2$input, prm_ncp$input)
-      }
-    }
-  }
-  list(values = values,
-       effects = list(df1 = prm_df1,
-                      df2 = prm_df2,
-                      ncp = prm_ncp))
+#' Simulation framework for exponential random variable
+#'
+#' @inheritParams sim_form
+#' @param rate The rate.
+#' @family simulation frameworks
+#' @export
+sim_exponential <- function(rate = 1, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(rate)))
+  structure(paste0("~Exponential(", deparse_to_char(rate), ")"),
+            class = c("sim_exponential", "sim_distribution"),
+            args = context_args(input = list(rate = rate),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_gamma <- function(shape, rate, params = NULL) {
-  info <- get_topenv_info()
-  prm_shape <- eval_effects(info$data, params$shape, shape, info$n)
-  prm_rate <- eval_effects(info$data, params$rate, rate, info$n)
-  list(values = stats::rgamma(info$n, prm_shape$input, prm_rate$input),
-       effects = list(shape = prm_shape,
-                      rate = prm_rate))
+#' Simulation framework for F random variable
+#'
+#' @inheritParams sim_form
+#' @param df1,df2 The numerator and denominator degrees of freedom.
+#' @family simulation frameworks
+#' @export
+sim_f <- function(df1, df2, ncp = NULL, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(df1)),
+                    quote(valid_positive(df2)),
+                    quote(valid_positive_or_null(ncp)))
+  structure(paste0("~F(", deparse_to_char(df1), ",", deparse_to_char(df2), ")"),
+            class = c("sim_f", "sim_distribution"),
+            args = context_args(input = list(df1 = df1, df2 = df2, ncp = ncp),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_hypergeometric <- function(m, n, k, params = NULL) {
-  info <- get_topenv_info()
-  prm_m <- eval_effects(info$data, params$m, m, info$n)
-  prm_n <- eval_effects(info$data, params$n, n, info$n)
-  prm_k <- eval_effects(info$data, params$k, k, info$n)
-  list(values = stats::rhyper(info$n, prm_m$input, prm_n$input, prm_k$input),
-       effects = list(m = prm_m,
-                      n = prm_n,
-                      k = prm_k))
+#' Simulation framework for Gamma random variable
+#'
+#' @inheritParams sim_form
+#' @param shape The shape.
+#' @param rate The rate.
+#' @family simulation frameworks
+#' @export
+sim_gamma <- function(shape, rate, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(shape)),
+                    quote(valid_positive(rate)))
+  structure(paste0("~Gamma(", deparse_to_char(shape), ",", deparse_to_char(rate), ")"),
+            class = c("sim_gamma", "sim_distribution"),
+            args = context_args(input = list(shape = shape, rate = rate),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_normal <- function(mean = 0, sd = 1, params = NULL) {
-  info <- get_topenv_info()
-  eff_mean <- eval_effects(info$data, params$mean, mean, info$n)
-  eff_sd <- eval_effects(info$data, params$sd, sd, info$n)
-  list(values = stats::rnorm(info$n, eff_mean$input, eff_sd$input),
-       effects = list(mean = eff_mean,
-                      sd = eff_sd))
+#' Simulation framework for Geometric random variable
+#'
+#' @inheritParams sim_form
+#' @inheritParams sim_bernoulli
+#' @family simulation frameworks
+#' @export
+sim_geometric <- function(prob, params = NULL, data = NULL) {
+  validator <- list(quote(valid_prop(prob)))
+  structure(paste0("~Geometric(", deparse_to_char(prob), ")"),
+            class = c("sim_geometric", "sim_distribution"),
+            args = context_args(input = list(prob = prob),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_t <- function(df, mean = 0, sd = 1, ncp = NULL, params = NULL) {
-  info <- get_topenv_info()
-  prm_df <- eval_effects(info$data, params$df, df, info$n)
-  prm_mean <- eval_effects(info$data, params$mean, mean, info$n)
-  prm_sd <- eval_effects(info$data, params$sd, sd, info$n)
-  prm_ncp <- eval_effects(info$data, params$ncp, ncp, info$n)
-  if(is.null(ncp)) {
-    values <- stats::rt(info$n, prm_df$input) * prm_sd$input + prm_mean$input
-  } else {
-    values <- stats::rt(info$n, prm_df$input, prm_ncp) * prm_sd$input + prm_mean$input
-  }
-  list(values = values,
-       effects = list(df = prm_df,
-                      mean = prm_mean,
-                      sd = prm_sd,
-                      ncp = prm_ncp))
+#' Simulation framework for Hyper-geometric random variable
+#'
+#' @inheritParams sim_form
+#' @param m,n,k The parameters of hypergeometric distribution.
+#' @family simulation frameworks
+#' @export
+sim_hypergeometric <- function(m, n, k, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(m)),
+                    quote(valid_positive(n)),
+                    quote(valid_positive(k)),
+                    quote(valid_greater(m + n, k)))
+  structure(paste0("~Hypergeometric(", deparse_to_char(m), ", ", deparse_to_char(n), ", ", deparse_to_char(k), ")"),
+            class = c("sim_hypergeometric", "sim_distribution"),
+            args = context_args(input = list(m = m, n = n, k = k),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_uniform <- function(min, max, params = NULL) {
-  info <- get_topenv_info()
-  prm_min <- eval_effects(info$data, params$min, min, info$n)
-  prm_max <- eval_effects(info$data, params$max, max, info$n)
-  list(values = stats::runif(info$n, prm_min$input, prm_max$input),
-       effects = list(min = prm_min,
-                      max = prm_max))
+#' Simulation framework for multinominal distribution
+#'
+#' @inheritParams sim_binomial
+#' @family simulation frameworks
+#' @export
+sim_multinominal <- function(size, prob, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(size)),
+                    quote(lapply(prob, valid_positive)))
+  structure(paste0("~Multinominal(", deparse_to_char(size), ",",
+                   deparse(prob), ")"),
+            class = c("sim_multinominal", "sim_distribution"),
+            args = context_args(input = list(size = size, prob = prob),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_weibull <- function(shape, scale = 1, params = NULL) {
-  info <- get_topenv_info()
-  prm_shape <- eval_effects(info$data, params$shape, shape, info$n)
-  prm_scale <- eval_effects(info$data, params$scale, scale, info$n)
-  list(values = stats::rweibull(info$n, prm_shape$input, prm_scale$input),
-       effects = list(shape = prm_shape,
-                      scale = prm_scale))
+
+#' Simulation framework for negative Binomial random variable
+#'
+#' @inheritParams sim_binomial
+#' @family simulation frameworks
+#' @export
+sim_negative_binomial <- function(size, prob, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(size)),
+                    quote(valid_prop(prob)))
+  structure(paste0("~NegativeBinomial(", deparse_to_char(size), ",", deparse_to_char(prob), ")"),
+            class = c("sim_negative_binomial", "sim_distribution"),
+            args = context_args(input = list(size = size, prob = prob),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_bernoulli <- function(prob, params = NULL) {
-  info <- get_topenv_info()
-  prm_prob <- eval_effects(info$data, params$prob, prob, info$n)
-  list(values = stats::rbinom(info$n, 1, prm_prob$input),
-       effects = list(prob = prm_prob))
+#' Simulation framework for Normal random variable
+#'
+#' @inheritParams sim_form
+#' @param mean The mean.
+#' @param sd The standard deviation.
+#' @family simulation frameworks
+#' @export
+sim_normal <- function(mean = 0, sd = 1, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(sd)))
+  structure(paste0("~Normal(", deparse_to_char(mean), ", ", deparse_to_char(sd), ")"),
+            class = c("sim_normal", "sim_distribution"),
+            args = context_args(input = list(mean = mean, sd = sd),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_binomial <- function(size, prob, params = NULL) {
-  info <- get_topenv_info()
-  prm_size <- eval_effects(info$data, params$size, size, info$n)
-  prm_prob <- eval_effects(info$data, params$prob, prob, info$n)
-  list(values = stats::rbinom(info$n, prm_size$input, prm_prob$input),
-       effects = list(size = prm_size,
-                      prob = prm_prob))
+#' Simulation framework for Poisson random variable
+#'
+#' @inheritParams sim_form
+#' @param lambda The mean.
+#' @family simulation frameworks
+#' @export
+sim_poisson <- function(lambda, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(lambda)))
+  structure(paste0("~Poisson(", deparse_to_char(lambda), ")"),
+            class = c("sim_poisson", "sim_distribution"),
+            args = context_args(input = list(lambda = lambda),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_geometric <- function(prob, params = NULL) {
-  info <- get_topenv_info()
-  prm_prob <- eval_effects(info$data, params$prob, prob, info$n)
-  list(values = stats::rgeom(info$n, prm_prob$input),
-       effects = list(prob = prm_prob))
+#' Simulation framework for t random variable
+#'
+#' @inheritParams sim_normal
+#' @inheritParams sim_chisq
+#' @param ncp The non-centrality parameters.
+#' @family simulation frameworks
+#' @export
+sim_t <- function(df, mean = 0, sd = 1, ncp = NULL, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(df)),
+                    quote(valid_positive(sd)),
+                    quote(valid_positive_or_null(ncp)))
+  structure(paste0("~t(", deparse_to_char(df), ", ", deparse_to_char(mean), ", ", deparse_to_char(sd), ")"),
+            class = c("sim_t", "sim_distribution"),
+            args = context_args(input = list(df = df, mean = mean, sd = sd, ncp = ncp),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_negative_binomial <- function(size, prob, params = NULL) {
-  info <- get_topenv_info()
-  prm_size <- eval_effects(info$data, params$size, size, info$n)
-  prm_prob <- eval_effects(info$data, params$prob, prob, info$n)
-  list(values = stats::rnbinom(info$n, prm_size$input, prm_prob$input),
-       effects = list(size = prm_size,
-                      prob = prm_prob))
+#' Simulation framework for uniform random variable
+#'
+#' @inheritParams sim_form
+#' @param min,max The minimum and maximum value.
+#' @family simulation frameworks
+#' @export
+sim_uniform <- function(min, max, params = NULL, data = NULL) {
+  validator <- list(quote(valid_greater(max, min)))
+  structure(paste0("~Uniform(", deparse_to_char(min), ", ", deparse_to_char(max), ")"),
+            class = c("sim_uniform", "sim_distribution"),
+            args = context_args(input = list(min = min, max = max),
+                                params = params, data = data,
+                                validator = validator))
 }
 
-sim_poisson <- function(lambda, params = NULL) {
-  info <- get_topenv_info()
-  prm_lambda <- eval_effects(info$data, params$lambda, lambda, info$n)
-  list(values = stats::rpois(info$n, prm_lambda$input),
-       effects = list(lambda = prm_lambda))
+#' Simulation framework for Weibull random variable
+#'
+#' @inheritParams sim_form
+#' @param shape,scale The shape and scale.
+#' @family simulation frameworks
+#' @export
+sim_weibull <- function(shape, scale = 1, params = NULL, data = NULL) {
+  validator <- list(quote(valid_positive(scale)),
+                    quote(valid_positive(shape)))
+  structure(paste0("~Weibull(", deparse_to_char(shape), ", ", deparse_to_char(scale), ")"),
+            class = c("sim_weibull", "sim_distribution"),
+            args = context_args(input = list(shape = shape, scale = scale),
+                                params = params, data = data,
+                                validator = validator))
 }
+
+
+
+#' @export
+print.sim_distribution <- function(x, ...) {
+  cat(x, "\n")
+}
+
+
+
+
+
+
 

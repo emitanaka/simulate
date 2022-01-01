@@ -4,9 +4,17 @@
 \name{simulate-package}
 \alias{simulate}
 \alias{simulate-package}
-\title{simulate: Simulate variables}
+\title{simulate: Parametric simulation framework to generate complex multivariate and multilevel data}
 \description{
-Easy simulation
+Simulation functions describe and generate complex multivariate and multilevel data from a combination of common parameteric distributions.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/emitanaka/simulate}
+  \item Report bugs at \url{https://github.com/emitanaka/simulate/issues}
+}
+
 }
 \author{
 \strong{Maintainer}: Emi Tanaka \email{dr.emi.tanaka@gmail.com} (\href{https://orcid.org/0000-0002-1455-259X}{ORCID})

@@ -1,33 +1,68 @@
-eval_effects <- function(data, params, input, n) {
+eval_effects <- function(data, params, input) {
+  n <- nrow(data) %||% 0L
   res <- data.frame(row.names = seq(n))
-  prms <- names(params)
-  for(avar in prms) {
-    res[[avar]] <- true_effects(data[[avar]], params[[avar]])
-  }
+  prms <- unique(c(names(params), names(data)))
+  #browser()
+  res <- sapply(prms, function(avar) true_effects(data[[avar]], params[[avar]], n),
+                USE.NAMES = TRUE, simplify = FALSE)
   if(is_formula(input)) {
     vars <- all.vars(input)
-    # check_var_exists(data %@% "design", label = unique(c(vars, prms)))
+    if(!all(ind <- vars %in% names(res))) {
+      abort(sprintf("The variables, %s, are not defined in the data.", paste0(vars[!ind], collapse = ", ")))
+    }
     input <- eval(get_expr(do.call("substitute", list(input, res))))
   }
   list(input = input,
        effects = res)
 }
 
-
-get_topenv_info <- function() {
-  e <- caller_env(n = 2)$.top_env
-  data <- e$data
-  n <- nlevels(data[[e$var]])
-  list(data = data,
-       n = ifelse(n==0, nrow(data), n))
+prm_to_lower_level <- function(params, params_essential) {
+  # if only one param then it  not have to be nested
+  if(length(params_essential)==1L) {
+    out <- list()
+    current <- params[[params_essential]]
+    if(is.null(current)) {
+      out[[params_essential]] <- params
+    } else {
+      out[[params_essential]] <- c(params[[params_essential]], params[setdiff(names(params), params_essential)])
+    }
+  } else {
+    out <- params
+  }
+  out
 }
 
+context_args <- function(input, params, data, validator = NULL) {
+  lapply(validator, function(x) eval_tidy(x, data = input))
+  e <- new.env()
+  e$data <- data
+  e$input <- input
+  e$params <- prm_to_lower_level(params, names(input))
+  e$validator <- validator
+  return(e)
+}
 
+deparse_to_char <- function(x) {
+  if(is_quosure(x)) {
+    x <- get_expr(x)
+  }
+  if(is_formula(x) | is_call(x) | is_symbol(x)) {
+    x <- paste(deparse(x), collapse = "")
+  }
+  x
+}
 
-true_effects <- function(f, effects) {
-  vlev <- levels(f)
+is_sim_distribution <- function(x) {
+  inherits(x, "sim_distribution")
+}
+
+true_effects <- function(f, effects, n = 1L) {
+  vlev <- levels(f) %||% sort(unique(f))
   res <- setNames(rep(0, length(vlev)), vlev)
-  if(is.list(effects)) {
+  #browser()
+  if(is_sim_distribution(effects)) {
+    simulate(effects, nsim = n)
+  } else if(is.list(effects)) {
     res[1:length(effects$values)] <- effects$values
     true_effects(f, res)
   } else if(is_named(effects)) {
@@ -37,6 +72,10 @@ true_effects <- function(f, effects) {
     unname(res[f])
   } else if(is_vector(effects)) {
     res[1:length(effects)] <- effects
+    true_effects(f, res)
+  } else if(is_formula(effects)) {
+    out <- eval_tidy(get_expr(effects), list(data = data.frame(eff = vlev)))
+    res[1:length(res)] <- out$values
     true_effects(f, res)
   }
 }
