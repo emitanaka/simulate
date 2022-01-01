@@ -1,16 +1,18 @@
 Package: simulate
-Title: Simulate variables
+Title: Parametric simulation framework to generate complex multivariate and multilevel data
 Version: 0.0.0.9000
 Authors@R: 
     person("Emi", "Tanaka", , "dr.emi.tanaka@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-1455-259X"))
-Description: Easy simulation
+Description: Simulation functions describe and generate complex multivariate 
+  and multilevel data from a combination of common parameteric distributions.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Language: es
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports: 
+    magrittr,
     rlang,
     stats
 Suggests: 
