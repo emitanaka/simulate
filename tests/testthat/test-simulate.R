@@ -1,6 +1,6 @@
 test_that("simulate", {
-  g1 <- sample(c("a", "b"), 10, replace = TRUE)
-  g2 <- sample(c("a", "b"), 10, replace = TRUE)
+  g1 <- sample(c("a", "b"), 20000, replace = TRUE)
+  g2 <- sample(c("a", "b"), 20000, replace = TRUE)
   expect_equal({
     sim_form(~ p[1] * g1 +
                p[2] * g2 +
@@ -9,8 +9,13 @@ test_that("simulate", {
              g2 = c(2, 2),
              g3 = c(3, 3),
              p = sim_multinominal(1, c(0.2, 0.4, 0.4))) %>%
-      simulate()
-  })
+      simulate() %>%
+      table()/20000
+  }, c(0.2, 0.4, 0.4), ignore_attr = TRUE, tolerance = 0.01)
+
+  data.frame(x1 = rnorm(100)) %>%
+    simulate(y1 = sim_normal(~x1, 1)) %>%
+    plot()
 
 
   sim_form(~p[1] * x1 + p[2] * x2, data = data.frame(x1 = rnorm(100, 0),
