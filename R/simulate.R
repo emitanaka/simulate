@@ -17,6 +17,7 @@ simulate.data.frame <- function(.data, nsim = 1, seed = NULL, ..., .cor = NULL) 
       out[[arcrd]] <- vector(mode = "numeric", length(nrow(out)))
       for(j in seq_along(rows)) {
         res <- eval_tidy(dots[[i]])
+        #browser()
         out[[arcrd]][rows[[j]]] <- simulate(res, data = out[rows[[j]], , drop = FALSE])
         effects[[j]] <- attr(res, "effects")
       }
@@ -52,38 +53,38 @@ simulate.data.frame <- function(.data, nsim = 1, seed = NULL, ..., .cor = NULL) 
 }
 
 #' @export
-simulate.sim_bernoulli <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_bernoulli <- function(x, nsim = 1, seed = NULL, data = NULL) {
   bdist <- function(n, prob) stats::rbinom(n, 1, prob)
   simulate_shell_distribution(x, nsim, seed, bdist, data)
 }
 
 #' @export
-simulate.sim_beta <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_beta <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rbeta, data)
 }
 
 #' @export
-simulate.sim_binomial <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_binomial <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rbinom, data)
 }
 
 #' @export
-simulate.sim_cauchy <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_cauchy <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rcauchy, data)
 }
 
 #' @export
-simulate.sim_chisq <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_chisq <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rchisq, data)
 }
 
 #' @export
-simulate.sim_exponential <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_exponential <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rexp, data)
 }
 
 #' @export
-simulate.sim_f <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_f <- function(x, nsim = 1, seed = NULL, data = NULL) {
   fdist <- function(n, df1, df2, ncp) {
     if(is.null(ncp)) {
       values <- stats::rf(n, df1, df2)
@@ -107,8 +108,9 @@ simulate.sim_f <- function(x, nsim = 1, data = NULL, seed = NULL) {
 }
 
 #' @export
-simulate.sim_form <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_form <- function(x, nsim = 1, seed = NULL, data = NULL) {
   fdist <- function(n, form) {
+    # TODO: fix this os it's not a repetition
     rep(form, nsim)
   }
   simulate_shell_distribution(x, nsim, seed, fdist, data)
@@ -116,22 +118,22 @@ simulate.sim_form <- function(x, nsim = 1, data = NULL, seed = NULL) {
 
 
 #' @export
-simulate.sim_gamma <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_gamma <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rgamma, data)
 }
 
 #' @export
-simulate.sim_geometric <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_geometric <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rgeom, data)
 }
 
 #' @export
-simulate.sim_hypergeometric <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_hypergeometric <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rhyper, data)
 }
 
 #' @export
-simulate.sim_multinominal <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_multinominal <- function(x, nsim = 1, seed = NULL, data = NULL) {
   rmulti <- function(n, size, prob) {
     l <- max(c(length(size), length(prob)))
     nclasses <- lengths(prob)
@@ -155,22 +157,22 @@ simulate.sim_multinominal <- function(x, nsim = 1, data = NULL, seed = NULL) {
 }
 
 #' @export
-simulate.sim_negative_binomial <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_negative_binomial <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rnbinom, data)
 }
 
 #' @export
-simulate.sim_normal <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_normal <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rnorm, data)
 }
 
 #' @export
-simulate.sim_poisson <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_poisson <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rpois, data)
 }
 
 #' @export
-simulate.sim_t <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_t <- function(x, nsim = 1, seed = NULL, data = NULL) {
   tdist <- function(n, df, mean = 0, sd = 1, ncp = NULL, params = NULL) {
     if(is.null(ncp)) {
       values <- stats::rt(n, df) * sd + mean
@@ -183,12 +185,12 @@ simulate.sim_t <- function(x, nsim = 1, data = NULL, seed = NULL) {
 }
 
 #' @export
-simulate.sim_uniform <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_uniform <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::runif, data)
 }
 
 #' @export
-simulate.sim_weibull <- function(x, nsim = 1, data = NULL, seed = NULL) {
+simulate.sim_weibull <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rweibull, data)
 }
 
