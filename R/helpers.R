@@ -62,6 +62,8 @@ true_effects <- function(f, effects, n = 1L) {
   #browser()
   if(is_sim_distribution(effects)) {
     simulate(effects, nsim = n)
+  } else if(is.null(effects)) {
+    f
   } else if(is.list(effects)) {
     res[1:length(effects$values)] <- effects$values
     true_effects(f, res)
