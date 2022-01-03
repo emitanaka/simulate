@@ -110,10 +110,9 @@ simulate.sim_f <- function(x, nsim = 1, seed = NULL, data = NULL) {
 #' @export
 simulate.sim_form <- function(x, nsim = 1, seed = NULL, data = NULL) {
   fdist <- function(n, form) {
-    # TODO: fix this os it's not a repetition
-    rep(form, nsim)
+    form
   }
-  simulate_shell_distribution(x, nsim, seed, fdist, data)
+  simulate_shell_distribution(x, nsim, seed, fdist, data, multiply_by_nsim = FALSE)
 }
 
 
@@ -194,7 +193,7 @@ simulate.sim_weibull <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rweibull, data)
 }
 
-simulate_shell_distribution <- function(x, nsim, seed, fdist, data) {
+simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_nsim = TRUE) {
   if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
     stats::runif(1)
   if (is.null(seed))
@@ -222,7 +221,9 @@ simulate_shell_distribution <- function(x, nsim, seed, fdist, data) {
     abort("The parameters should be of length 1 or of the same lengths.")
   }
   n <- nrow(args$data) %||% max(l) %||% 1L
-  out <- do.call(fdist, c(list(n * nsim), input))
+  out <- if(multiply_by_nsim) { do.call(fdist, c(list(n * nsim), input)) } else {
+    Reduce("c", lapply(1:nsim, function(i) do.call(fdist, c(list(n), input))))
+  }
   structure(out,
             params = input,
             class = c("sim_draw", class(out)),
