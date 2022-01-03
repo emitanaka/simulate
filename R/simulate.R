@@ -208,12 +208,14 @@ simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_
   args <- attr(x, "args")
   args$data <- data %||% args$data
   paramsv <- names(args$input)
+  #browser()
   prms <- sapply(paramsv, function(aparam) {
     eval_effects(args$data, args$params[[aparam]], args$input[[aparam]])
   }, USE.NAMES = TRUE, simplify = FALSE)
   input <- sapply(paramsv, function(aparam) prms[[aparam]]$input,
                   USE.NAMES = TRUE, simplify = FALSE)
   # check parameters
+
   lapply(args$validator, function(x) eval_tidy(x, data = input))
   # continue
   l <- lengths(input)
@@ -226,7 +228,7 @@ simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_
   }
   structure(out,
             params = input,
-            class = c("sim_draw", class(out)),
+            class = unique(c("sim_draw", class(out))),
             seed = RNGstate)
 }
 
@@ -234,7 +236,7 @@ simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_
 print.sim_draw <- function(x, ...) {
   attr(x, "seed") <- NULL
   attr(x, "params") <- NULL
-  if(inherits(x, "numeric")) attr(x, "class") <- NULL
+  if(inherits(x, c("numeric", "integer"))) attr(x, "class") <- NULL
   NextMethod()
 }
 

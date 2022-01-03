@@ -1,5 +1,5 @@
 eval_effects <- function(data, params, input) {
-  n <- nrow(data) %||% 0L
+  n <- nrow(data) %||% 1L
   res <- data.frame(row.names = seq(n))
   prms <- unique(c(names(params), names(data)))
   #browser()
