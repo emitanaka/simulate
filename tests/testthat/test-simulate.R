@@ -13,20 +13,20 @@ test_that("simulate", {
       table()/20000
   }, c(0.2, 0.4, 0.4), ignore_attr = TRUE, tolerance = 0.01)
 
-  data.frame(x1 = rnorm(100)) %>%
-    simulate(y1 = sim_normal(~x1, 1)) %>%
-    plot()
+  expect_equal({
+    sim_form(~p[1] * x1 + p[2] * x2, data = data.frame(x1 = rep(0, 10000),
+                                                       x2 = rep(10, 10000))) %>%
+      params(p = sim_multinominal(1, c(0.1, 0.9))) %>%
+      simulate() %>%
+      table() / 10000
+  }, c(0.1, 0.9), ignore_attr = TRUE, tolerance = 0.01)
 
-
-  sim_form(~p[1] * x1 + p[2] * x2, data = data.frame(x1 = rnorm(100, 0),
-                                                     x2 = rnorm(100, 10))) %>%
-    params(p = sim_multinominal(1, c(0.1, 0.9))) %>%
-    simulate()
-
-  sim_form(~p * g1, data = list(c(1, 2))) %>%
-    params(g1 = sim_normal(),
-           p = sim_bernoulli(0)) %>%
-    simulate()
+  expect_equal({
+    sim_form(~p * g1) %>%
+      params(g1 = sim_normal(),
+             p = sim_bernoulli(0)) %>%
+      simulate()
+  }, 0, ignore_attr = TRUE)
 
 
   df1 <- data.frame(grp1 = c("C", "A", "A", "A", "C", "C", "B", "B", "B", "A", "B", "B",
