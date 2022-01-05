@@ -48,13 +48,30 @@
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="correlate.html">correlate()</a></code> </p>
-        </td>
-        <td><p>Generate correlated random variables</p></td>
-      </tr><tr><td>
           <p><code><a href="correlation_matrix.html">correlation_matrix()</a></code> </p>
         </td>
-        <td><p>Convert values to correlation matrix</p></td>
+        <td><p>#' Generate correlated random variables
+#'
+#' @export
+correlate &lt;- function(.data, vars = NULL, mean = NULL,
+cor = NULL, cov = NULL, dist = "normal") 
+comat &lt;- cor %||% cov
+p &lt;- nrow(comat)
+n &lt;- nrow(.data)
+mean &lt;- mean %||% rep(0, p)
+if(all(dist=="normal")) 
+eS &lt;- eigen(comat, symmetric = TRUE)
+ev &lt;- eS$values
+out &lt;- mean + eS$vectors %<em>% diag(sqrt(ev)) %</em>% t(matrix(rnorm(p * n), n))
+out &lt;- t(out)
+colnames(out) &lt;- vars
+
+else 
+abort("Not implemented")
+
+cbind(.data, out)
+
+Convert values to correlation matrix</p></td>
       </tr><tr><td>
           <p><code><a href="params.html">params()</a></code> </p>
         </td>
