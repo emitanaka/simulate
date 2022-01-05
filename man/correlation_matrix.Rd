@@ -2,10 +2,61 @@
 % Please edit documentation in R/correlate.R
 \name{correlation_matrix}
 \alias{correlation_matrix}
-\title{Convert values to correlation matrix}
+\title{#' Generate correlated random variables
+#'
+#' @export
+correlate <- function(.data, vars = NULL, mean = NULL,
+cor = NULL, cov = NULL, dist = "normal") {
+comat <- cor \%||\% cov
+p <- nrow(comat)
+n <- nrow(.data)
+mean <- mean \%||\% rep(0, p)
+if(all(dist=="normal")) {
+eS <- eigen(comat, symmetric = TRUE)
+ev <- eS$values
+out <- mean + eS$vectors \%\emph{\% diag(sqrt(ev)) \%}\% t(matrix(rnorm(p * n), n))
+out <- t(out)
+colnames(out) <- vars
+}
+else {
+abort("Not implemented")
+}
+cbind(.data, out)
+}
+Convert values to correlation matrix}
 \usage{
-correlation_matrix(..., .names = NULL)
+correlation_matrix(..., .names = NULL, .upper = NULL, .lower = NULL)
+}
+\arguments{
+\item{...}{A series of values or dots for the correlation matrix.}
+
+\item{.names}{The name of the variables.}
+
+\item{.upper, .lower}{A vector of values for the upper (lower) triangle values
+filled by row (column). If the \code{.upper} or \code{.lower} is defined then \code{...}
+must not be defined.}
 }
 \description{
+#' Generate correlated random variables
+#'
+#' @export
+correlate <- function(.data, vars = NULL, mean = NULL,
+cor = NULL, cov = NULL, dist = "normal") {
+comat <- cor \%||\% cov
+p <- nrow(comat)
+n <- nrow(.data)
+mean <- mean \%||\% rep(0, p)
+if(all(dist=="normal")) {
+eS <- eigen(comat, symmetric = TRUE)
+ev <- eS$values
+out <- mean + eS$vectors \%\emph{\% diag(sqrt(ev)) \%}\% t(matrix(rnorm(p * n), n))
+out <- t(out)
+colnames(out) <- vars
+}
+else {
+abort("Not implemented")
+}
+cbind(.data, out)
+}
 Convert values to correlation matrix
 }
