@@ -2,61 +2,55 @@
 % Please edit documentation in R/correlate.R
 \name{correlation_matrix}
 \alias{correlation_matrix}
-\title{#' Generate correlated random variables
-#'
-#' @export
-correlate <- function(.data, vars = NULL, mean = NULL,
-cor = NULL, cov = NULL, dist = "normal") {
-comat <- cor \%||\% cov
-p <- nrow(comat)
-n <- nrow(.data)
-mean <- mean \%||\% rep(0, p)
-if(all(dist=="normal")) {
-eS <- eigen(comat, symmetric = TRUE)
-ev <- eS$values
-out <- mean + eS$vectors \%\emph{\% diag(sqrt(ev)) \%}\% t(matrix(rnorm(p * n), n))
-out <- t(out)
-colnames(out) <- vars
-}
-else {
-abort("Not implemented")
-}
-cbind(.data, out)
-}
-Convert values to correlation matrix}
+\title{Construct correlation matrix}
 \usage{
-correlation_matrix(..., .names = NULL, .upper = NULL, .lower = NULL)
+correlation_matrix(
+  ...,
+  .names = NULL,
+  .upper = NULL,
+  .byrow = TRUE,
+  .check = TRUE
+)
 }
 \arguments{
-\item{...}{A series of values or dots for the correlation matrix.}
+\item{...}{A series of values or dots for the correlation matrix. Only the
+value in the upper triangle or lower triangle (not both) should be used.
+Use \code{.} for value of 1 in the diagonal entries and value of 0 in off-diagonal
+entries. For a n x n correlation matrix, there should be n x n values.}
 
 \item{.names}{The name of the variables.}
 
-\item{.upper, .lower}{A vector of values for the upper (lower) triangle values
-filled by row (column). If the \code{.upper} or \code{.lower} is defined then \code{...}
-must not be defined.}
+\item{.upper}{A vector of values for the upper triangle values
+filled by row (or column if \code{.byrow = FALSE}. If \code{.upper} is defined then \code{...}
+is ignored.}
+
+\item{.byrow}{A logical value indicating whether the matrix is filled by
+row or column. The default is \code{TRUE}.}
+
+\item{.check}{A logical value to indicate if the correlation matrix is valid
+or not. This essentially equates to check that the matrix is semi-positive definite.}
 }
 \description{
-#' Generate correlated random variables
-#'
-#' @export
-correlate <- function(.data, vars = NULL, mean = NULL,
-cor = NULL, cov = NULL, dist = "normal") {
-comat <- cor \%||\% cov
-p <- nrow(comat)
-n <- nrow(.data)
-mean <- mean \%||\% rep(0, p)
-if(all(dist=="normal")) {
-eS <- eigen(comat, symmetric = TRUE)
-ev <- eS$values
-out <- mean + eS$vectors \%\emph{\% diag(sqrt(ev)) \%}\% t(matrix(rnorm(p * n), n))
-out <- t(out)
-colnames(out) <- vars
+Given a set of values, convert it to a correlation matrix.
 }
-else {
-abort("Not implemented")
+\examples{
+correlation_matrix(., 0.7, .,   .,
+                   .,   ., ., 0.3,
+                   .,   ., .,   .,
+                   .,   ., .,   .)
+
+correlation_matrix(.upper = c(0.7, 0.1, 0.3, 0.2, -0.1, -0.3))
+
+correlation_matrix(.upper = c(0.7, 0.1, 0.3, 0.2, -0.1, -0.3),
+                   .byrow = FALSE)
+
+correlation_matrix(.upper = rep(0.2, 3), .names = c("A", "B", "C"))
+
 }
-cbind(.data, out)
+\seealso{
+cor_matrix_str
+
+Other correlation matrix: 
+\code{\link{cor_matrix_str}()}
 }
-Convert values to correlation matrix
-}
+\concept{correlation matrix}
