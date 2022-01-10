@@ -90,7 +90,6 @@ matrix_ad1 <- function(n, u, vars = 1, names = NULL, inverse_return = FALSE) {
 
 # TODO:
 # fa1 - first order factor analytic
-# tp - toeplitz - n parameters - \sigma_{ij} = \sigma_{|i - j| + 1}
 
 setup_matrix <- function(n, names = NULL, diag = TRUE) {
   stopifnot(n %% 1 == 0)
