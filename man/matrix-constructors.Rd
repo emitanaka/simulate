@@ -6,6 +6,7 @@
 \alias{matrix_diag}
 \alias{matrix_cs}
 \alias{matrix_ar1}
+\alias{matrix_tp}
 \alias{matrix_ad1}
 \title{Constructors for structured correlation and covariance matrix}
 \usage{
@@ -16,6 +17,8 @@ matrix_diag(n, vars = 1, names = NULL, inverse_return = FALSE)
 matrix_cs(n, rho = 0, vars = 1, names = NULL, inverse_return = FALSE)
 
 matrix_ar1(n, rho = 0, vars = 1, names = NULL, inverse_return = FALSE)
+
+matrix_tp(n, rho = 0, vars = 1, names = NULL, inverse_return = FALSE)
 
 matrix_ad1(n, u, vars = 1, names = NULL, inverse_return = FALSE)
 }
@@ -44,6 +47,8 @@ and the off-diagonal elements between -1 and 1 inclusive.
 \item \code{matrix_cs}: Compound symmetric matrix.
 
 \item \code{matrix_ar1}: First order autoregressive order matrix.
+
+\item \code{matrix_tp}: Toeplitz.
 
 \item \code{matrix_ad1}: First order ante-dependence order matrix.
 }}

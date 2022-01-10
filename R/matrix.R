@@ -57,6 +57,23 @@ matrix_ar1 <- function(n, rho = 0, vars = 1, names = NULL, inverse_return = FALS
   out
 }
 
+#' @describeIn matrix-constructors Toeplitz.
+#' @export
+matrix_tp <- function(n, rho = 0, vars = 1, names = NULL, inverse_return = FALSE) {
+  out <- setup_matrix(n, names, diag = FALSE)
+  ind <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - (1:n - 1))
+  diag(ind) <- 1
+  out <- matrix(rho[ind], n)
+  diag(out) <- 1
+  if(length(vars)==1L) {
+    out <- vars * out
+  } else {
+    out <- diag(sqrt(vars)) %*% out %*% diag(sqrt(vars))
+  }
+  if(inverse_return) return(solve(out))
+  out
+}
+
 #' @describeIn matrix-constructors First order ante-dependence order matrix.
 #' @export
 matrix_ad1 <- function(n, u, vars = 1, names = NULL, inverse_return = FALSE) {
@@ -73,7 +90,7 @@ matrix_ad1 <- function(n, u, vars = 1, names = NULL, inverse_return = FALSE) {
 
 # TODO:
 # fa1 - first order factor analytic
-# tp - toeplitz
+# tp - toeplitz - n parameters - \sigma_{ij} = \sigma_{|i - j| + 1}
 
 setup_matrix <- function(n, names = NULL, diag = TRUE) {
   stopifnot(n %% 1 == 0)
