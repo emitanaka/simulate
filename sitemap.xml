@@ -10,10 +10,22 @@
     <loc>/index.html</loc>
   </url>
   <url>
+    <loc>/reference/cor_matrix_str.html</loc>
+  </url>
+  <url>
     <loc>/reference/correlation_matrix.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/matrix-constructors.html</loc>
+  </url>
+  <url>
+    <loc>/reference/mset_names.html</loc>
+  </url>
+  <url>
+    <loc>/reference/mset_values.html</loc>
   </url>
   <url>
     <loc>/reference/params.html</loc>

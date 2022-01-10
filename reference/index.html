@@ -48,30 +48,25 @@
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
+          <p><code><a href="cor_matrix_str.html">cor_matrix_str()</a></code> </p>
+        </td>
+        <td><p>Input structure for correlation matrix</p></td>
+      </tr><tr><td>
           <p><code><a href="correlation_matrix.html">correlation_matrix()</a></code> </p>
         </td>
-        <td><p>#' Generate correlated random variables
-#'
-#' @export
-correlate &lt;- function(.data, vars = NULL, mean = NULL,
-cor = NULL, cov = NULL, dist = "normal") 
-comat &lt;- cor %||% cov
-p &lt;- nrow(comat)
-n &lt;- nrow(.data)
-mean &lt;- mean %||% rep(0, p)
-if(all(dist=="normal")) 
-eS &lt;- eigen(comat, symmetric = TRUE)
-ev &lt;- eS$values
-out &lt;- mean + eS$vectors %<em>% diag(sqrt(ev)) %</em>% t(matrix(rnorm(p * n), n))
-out &lt;- t(out)
-colnames(out) &lt;- vars
-
-else 
-abort("Not implemented")
-
-cbind(.data, out)
-
-Convert values to correlation matrix</p></td>
+        <td><p>Construct correlation matrix</p></td>
+      </tr><tr><td>
+          <p><code><a href="matrix-constructors.html">matrix_id()</a></code> <code><a href="matrix-constructors.html">matrix_diag()</a></code> <code><a href="matrix-constructors.html">matrix_cs()</a></code> <code><a href="matrix-constructors.html">matrix_ar1()</a></code> <code><a href="matrix-constructors.html">matrix_ad1()</a></code> </p>
+        </td>
+        <td><p>Constructors for structured correlation and covariance matrix</p></td>
+      </tr><tr><td>
+          <p><code><a href="mset_names.html">mset_names()</a></code> <code><a href="mset_names.html">mset_colnames()</a></code> <code><a href="mset_names.html">mset_rownames()</a></code> </p>
+        </td>
+        <td><p>Set the name of the matrix.</p></td>
+      </tr><tr><td>
+          <p><code><a href="mset_values.html">mset_values()</a></code> </p>
+        </td>
+        <td><p>Set the name of the matrix.</p></td>
       </tr><tr><td>
           <p><code><a href="params.html">params()</a></code> </p>
         </td>
