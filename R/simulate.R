@@ -1,8 +1,8 @@
 
 
 #' @export
-simulate.data.frame <- function(.data, nsim = 1, seed = NULL, ..., .cor = NULL) {
-  dots <- enquos(..., .named = TRUE)
+simulate.data.frame <- function(.data, nsim = 1, seed = NULL, ..., .cor = NULL, .empirical = FALSE) {
+  dots <- list2(...)
   dots_nms <- names(dots)
   out <- .data
   if(is.null(.cor)) {
@@ -16,8 +16,7 @@ simulate.data.frame <- function(.data, nsim = 1, seed = NULL, ..., .cor = NULL) 
       arcrd <- dots_nms[i]
       out[[arcrd]] <- vector(mode = "numeric", length(nrow(out)))
       for(j in seq_along(rows)) {
-        res <- eval_tidy(dots[[i]])
-        #browser()
+        res <- dots[[i]]
         out[[arcrd]][rows[[j]]] <- simulate(res, data = out[rows[[j]], , drop = FALSE])
         effects[[j]] <- attr(res, "effects")
       }
@@ -33,7 +32,7 @@ simulate.data.frame <- function(.data, nsim = 1, seed = NULL, ..., .cor = NULL) 
       dimnames(.cor) <- list(dots_nms, dots_nms)
     }
     correlated_vars <- dimnames(.cor)
-    if(!correlated_vars[[1]] %in% dots_nms | !correlated_vars[[2]] %in% dots_nms ) {
+    if(!all(correlated_vars[[1]] %in% dots_nms) | !all(correlated_vars[[2]] %in% dots_nms) ) {
       abort("Some correlated variables do not exist.")
     }
     if(!all(sort(correlated_vars[[1]])==sort(correlated_vars[[2]]))) {
@@ -44,9 +43,29 @@ simulate.data.frame <- function(.data, nsim = 1, seed = NULL, ..., .cor = NULL) 
     if(all(Cmat==diag(nrow(Cmat)))) {
       return(simulate(.data, ...))
     }
-
-    browser()
-
+    dist_types <- map_chr(dots[correlated_vars[[1]]], function(x) class(x)[1])
+    if(all(dist_types == "sim_normal")) {
+      input <- lapply(dots[correlated_vars[[1]]], function(x) get_dist_params(x, data = .data))
+      vmeans <- map_dbl(input, function(x) x$mean)
+      vsds <- map_dbl(input, function(x) x$sd)
+      #browser()
+      eS <- eigen(diag(vsds) %*% Cmat %*% diag(vsds), symmetric = TRUE)
+      ev <- eS$values
+      n <- nrow(.data)
+      X <- matrix(rnorm(p[1] * n), n)
+      if (.empirical) {
+        X <- scale(X, TRUE, FALSE)
+        X <- X %*% svd(X, nu = 0)$v
+        X <- scale(X, FALSE, TRUE)
+      }
+      X <- drop(vmeans) + eS$vectors %*% diag(sqrt(pmax(ev, 0)), p[1]) %*%
+        t(X)
+      X <- t(X)
+      colnames(X) <- correlated_vars[[1]]
+      out <- cbind(out, X)
+    } else {
+      abort("Not implemented")
+    }
   }
 
   out
@@ -193,6 +212,25 @@ simulate.sim_weibull <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rweibull, data)
 }
 
+get_dist_params <- function(x, data = NULL) {
+  args <- attr(x, "args")
+  args$data <- data %||% args$data
+  paramsv <- names(args$input)
+  prms <- sapply(paramsv, function(aparam) {
+    eval_effects(args$data, args$params[[aparam]], args$input[[aparam]])
+  }, USE.NAMES = TRUE, simplify = FALSE)
+  input <- sapply(paramsv, function(aparam) prms[[aparam]]$input,
+                  USE.NAMES = TRUE, simplify = FALSE)
+  ### checks
+  lapply(args$validator, function(x) eval_tidy(x, data = input))
+  l <- lengths(input)
+  if(!all(l %in% c(max(l), 1L, 0L))) {
+    abort("The parameters should be of length 1 or of the same lengths.")
+  }
+  ####
+  input
+}
+
 simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_nsim = TRUE) {
   if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
     stats::runif(1)
@@ -205,23 +243,9 @@ simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_
     on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
   }
 
-  args <- attr(x, "args")
-  args$data <- data %||% args$data
-  paramsv <- names(args$input)
-  #browser()
-  prms <- sapply(paramsv, function(aparam) {
-    eval_effects(args$data, args$params[[aparam]], args$input[[aparam]])
-  }, USE.NAMES = TRUE, simplify = FALSE)
-  input <- sapply(paramsv, function(aparam) prms[[aparam]]$input,
-                  USE.NAMES = TRUE, simplify = FALSE)
-  # check parameters
+  input <- get_dist_params(x, data = data)
 
-  lapply(args$validator, function(x) eval_tidy(x, data = input))
-  # continue
-  l <- lengths(input)
-  if(!all(l %in% c(max(l), 1L, 0L))) {
-    abort("The parameters should be of length 1 or of the same lengths.")
-  }
+
   n <- nrow(args$data) %||% max(l) %||% 1L
   out <- if(multiply_by_nsim) { do.call(fdist, c(list(n * nsim), input)) } else {
     Reduce("c", lapply(1:nsim, function(i) do.call(fdist, c(list(n), input))))

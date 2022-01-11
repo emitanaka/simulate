@@ -1,4 +1,5 @@
 test_that("distributions", {
+  aseed <- runif(1)
   expect_equal({
     sim_bernoulli(0) %>%
       simulate()
@@ -30,56 +31,56 @@ test_that("distributions", {
 
   expect_equal({
     sim_beta(1, 1) %>%
-      simulate(nsim = 1000000, seed = 1) %>%
+      simulate(nsim = 5000000, seed = aseed) %>%
       mean()
   }, 0.5, ignore_attr = TRUE, tolerance = 0.0001)
 
   y <- sim_beta(1, 1) %>%
-    simulate(nsim = 1000000, seed = 1)
+    simulate(nsim = 1000000, seed = aseed)
   expect_equal({
     sim_beta(1, 1) %>%
-      simulate(nsim = 1000000, seed = 1)
+      simulate(nsim = 1000000, seed = aseed)
   }, y, ignore_attr = TRUE)
 
   expect_equal({
     sim_binomial(3, 0.5) %>%
-      simulate(nsim = 1000000, seed = 1) %>%
+      simulate(nsim = 1000000, seed = aseed) %>%
       mean()
   }, 1.5, ignore_attr = TRUE, tolerance = 0.0001)
 
   expect_equal({
     sim_cauchy(-3, 1) %>%
-      simulate(nsim = 1000000, seed = 1) %>%
+      simulate(nsim = 1000000, seed = aseed) %>%
       median()
   }, -3, ignore_attr = TRUE, tolerance = 0.001)
 
   expect_equal({
     sim_chisq(4) %>%
-      simulate(nsim = 1000000, seed = 1) %>%
+      simulate(nsim = 1000000, seed = aseed) %>%
       mean()
   }, 4, ignore_attr = TRUE, tolerance = 0.001)
 
   expect_equal({
     sim_exponential(4) %>%
-      simulate(nsim = 1000000, seed = 1) %>%
+      simulate(nsim = 5000000, seed = aseed) %>%
       mean()
   }, 1/4, ignore_attr = TRUE, tolerance = 0.001)
 
   expect_equal({
     sim_f(4, 3) %>%
-      simulate(nsim = 1000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       mean()
-  }, 3 / (3 - 2), ignore_attr = TRUE, tolerance = 0.001)
+  }, 3 / (3 - 2), ignore_attr = TRUE, tolerance = 0.01)
 
   expect_equal({
     sim_gamma(4, 3) %>%
-      simulate(nsim = 1000000, seed = 1) %>%
+      simulate(nsim = 1000000, seed = aseed) %>%
       mean()
   }, 4 * 1/3, ignore_attr = TRUE, tolerance = 0.001)
 
   expect_equal({
     sim_geometric(0.8) %>%
-      simulate(nsim = 10000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       mean()
   }, 0.2/0.8, ignore_attr = TRUE, tolerance = 0.001)
 
@@ -87,7 +88,7 @@ test_that("distributions", {
 
   expect_equal({
     sim_hypergeometric(10, 4, 8) %>%
-      simulate(nsim = 10000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       mean()
   }, 8 * 10/(10 + 4), ignore_attr = TRUE, tolerance = 0.001)
 
@@ -113,31 +114,31 @@ test_that("distributions", {
 
   expect_equal({
     sim_negative_binomial(10, 0.4) %>%
-      simulate(nsim = 10000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       mean()
   }, 10 * 0.6 / (1 - 0.6), ignore_attr = TRUE, tolerance = 0.001)
 
   expect_equal({
     sim_normal(-10, 1) %>%
-      simulate(nsim = 10000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       mean()
   }, -10, ignore_attr = TRUE, tolerance = 0.001)
 
   expect_equal({
     sim_normal(-10, 3) %>%
-      simulate(nsim = 10000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       sd()
   }, 3, ignore_attr = TRUE, tolerance = 0.001)
 
   expect_equal({
     sim_poisson(3) %>%
-      simulate(nsim = 10000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       mean()
   }, 3, ignore_attr = TRUE, tolerance = 0.001)
 
   expect_equal({
     sim_t(3, -5, 2) %>%
-      simulate(nsim = 10000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       mean()
   }, -5, ignore_attr = TRUE, tolerance = 0.001)
 
@@ -145,13 +146,13 @@ test_that("distributions", {
 
   expect_equal({
     sim_uniform(-4, -2) %>%
-      simulate(nsim = 10000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       mean()
   }, -3, ignore_attr = TRUE, tolerance = 0.001)
 
   expect_equal({
     sim_weibull(3, 1.5) %>%
-      simulate(nsim = 10000000, seed = 1) %>%
+      simulate(nsim = 10000000, seed = aseed) %>%
       mean()
   }, 1.5 * gamma(1 + 1/3), ignore_attr = TRUE, tolerance = 0.001)
 
