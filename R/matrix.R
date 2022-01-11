@@ -136,23 +136,37 @@ mset_rownames <- function(X, names = NULL) {
   X
 }
 
-#' Set the name of the matrix.
+#' Set the values of the cell in subset of matrix.
 #'
-#' @param X A matrix.
+#' If replacing specific cell values use `mset_values`.
+#' If you want to change a sub-matrix of the whole matrix then use `mset_matrix`.
+#'
+#' @param matrix A matrix.
+#' @param i,j The index of the rows and columns respectively.
+#' @param replacement The values to set the
 #' @family Matrix manipulators
+#' @name matrixop
+#' @examples
+#'
+NULL
+
+#' @describeIn matrixop Set the values of particular cells
 #' @export
-mset_values <- function(X, i, j, value) {
-  X[matrix(c(i, j), ncol = 2)] <- value
-  X
+mset_values <- function(matrix, i, j, replacement) {
+  matrix[matrix(c(i, j), ncol = 2)] <- replacement
+  matrix
 }
 
-mset_matrix <- function(X, rows, cols, ..., .matrix = NULL) {
-  dots <- enquos(...)
-  x <- which(!map_lgl(dots, is_a_dot))
-  vals <- map_dbl(dots[x], eval_tidy)
-  S <- matrix(vals, length(rows), length(cols), byrow = TRUE)
-  X[rows, cols] <- S
-  X
+#' @describeIn matrixop Set the values of a submatrix
+#' @export
+mset_matrix <- function(matrix, i, j, replacement) {
+  if(!is.matrix(replacement)) {
+    S <- matrix(replacement, length(i), length(j), byrow = TRUE)
+  } else {
+    S <- replacement
+  }
+  matrix[i, j] <- S
+  matrix
 }
 
 mcheck_positive_definite <- function(X) {

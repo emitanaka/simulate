@@ -60,6 +60,19 @@ test_that("matrix operators", {
   expect_equal(mset_rownames(M, nms), M3)
   expect_equal(mset_names(M4A, list(nms, LETTERS[1:4])), M4B)
 
+  expect_equal(mset_values(M, 2:3, 2:3, c(-1, -2)),
+               matrix(c(1, 0, 0, 0, -1, 0, 0, 0, -2), ncol = 3))
+
+
+  expect_equal(mset_matrix(M, 2:3, 2:3, matrix(1:4, 2, 2)),
+               matrix(c(1, 0, 0, 0, 1, 2, 0, 3, 4), ncol = 3))
+
+  expect_equal(mset_matrix(M, 2:3, 2:3,
+                           c(1, 3,
+                             2, 4)),
+               matrix(c(1, 0, 0, 0, 1, 2, 0, 3, 4), ncol = 3))
+
+
 
   # TODO: other matrix operators
 

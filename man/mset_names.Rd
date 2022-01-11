@@ -32,6 +32,6 @@ Set the name of the matrix.
 
 \seealso{
 Other Matrix manipulators: 
-\code{\link{mset_values}()}
+\code{\link{matrixop}}
 }
 \concept{Matrix manipulators}
