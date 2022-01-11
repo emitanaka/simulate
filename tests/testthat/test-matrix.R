@@ -73,9 +73,4 @@ test_that("matrix operators", {
                matrix(c(1, 0, 0, 0, 1, 2, 0, 3, 4), ncol = 3))
 
 
-
-  # TODO: other matrix operators
-
-
-
 })
