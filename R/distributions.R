@@ -234,6 +234,9 @@ sim_normal <- function(mean = 0, sd = 1, params = NULL, data = NULL) {
                                 validator = validator))
 }
 
+#' @export
+sim_norm <- sim_normal
+
 #' Simulation framework for Poisson random variable
 #'
 #' @inheritParams sim_form

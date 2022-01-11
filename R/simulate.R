@@ -1,7 +1,9 @@
 
 
 #' @export
-simulate.data.frame <- function(.data, nsim = 1, seed = NULL, ..., .cor = NULL, .empirical = FALSE) {
+simulate.data.frame <- function(.data, ..., .cor = NULL, .empirical = FALSE, .seed = NULL) {
+  RNGstate <- save_seed(.seed)
+
   dots <- list2(...)
   dots_nms <- names(dots)
   out <- .data
@@ -68,6 +70,7 @@ simulate.data.frame <- function(.data, nsim = 1, seed = NULL, ..., .cor = NULL, 
     }
   }
 
+  attr(out, "seed") <- RNGstate
   out
 }
 
@@ -212,6 +215,11 @@ simulate.sim_weibull <- function(x, nsim = 1, seed = NULL, data = NULL) {
   simulate_shell_distribution(x, nsim, seed, stats::rweibull, data)
 }
 
+get_dist_data <- function(x, data = NULL) {
+  args <- attr(x, "args")
+  args$data <- data %||% args$data
+}
+
 get_dist_params <- function(x, data = NULL) {
   args <- attr(x, "args")
   args$data <- data %||% args$data
@@ -231,7 +239,7 @@ get_dist_params <- function(x, data = NULL) {
   input
 }
 
-simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_nsim = TRUE) {
+save_seed <- function(seed) {
   if (!exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
     stats::runif(1)
   if (is.null(seed))
@@ -242,11 +250,15 @@ simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_
     RNGstate <- structure(seed, kind = as.list(RNGkind()))
     on.exit(assign(".Random.seed", R.seed, envir = .GlobalEnv))
   }
+  RNGstate
+}
 
+simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_nsim = TRUE) {
+
+  RNGstate <- save_seed(seed = seed)
   input <- get_dist_params(x, data = data)
-
-
-  n <- nrow(args$data) %||% max(l) %||% 1L
+  data <- get_dist_data(x, data = data)
+  n <- nrow(data) %||% max(l) %||% 1L
   out <- if(multiply_by_nsim) { do.call(fdist, c(list(n * nsim), input)) } else {
     Reduce("c", lapply(1:nsim, function(i) do.call(fdist, c(list(n), input))))
   }
