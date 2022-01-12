@@ -50,7 +50,6 @@ simulate.data.frame <- function(.data, ..., .cor = NULL, .empirical = FALSE, .se
       input <- lapply(dots[correlated_vars[[1]]], function(x) get_dist_params(x, data = .data))
       vmeans <- map_dbl(input, function(x) x$mean)
       vsds <- map_dbl(input, function(x) x$sd)
-      #browser()
       eS <- eigen(diag(vsds) %*% Cmat %*% diag(vsds), symmetric = TRUE)
       ev <- eS$values
       n <- nrow(.data)
@@ -60,8 +59,7 @@ simulate.data.frame <- function(.data, ..., .cor = NULL, .empirical = FALSE, .se
         X <- X %*% svd(X, nu = 0)$v
         X <- scale(X, FALSE, TRUE)
       }
-      X <- drop(vmeans) + eS$vectors %*% diag(sqrt(pmax(ev, 0)), p[1]) %*%
-        t(X)
+      X <- drop(vmeans) + eS$vectors %*% diag(sqrt(pmax(ev, 0)), p[1]) %*% t(X)
       X <- t(X)
       colnames(X) <- correlated_vars[[1]]
       out <- cbind(out, X)
@@ -258,6 +256,7 @@ simulate_shell_distribution <- function(x, nsim, seed, fdist, data, multiply_by_
   RNGstate <- save_seed(seed = seed)
   input <- get_dist_params(x, data = data)
   data <- get_dist_data(x, data = data)
+  l <- lengths(input)
   n <- nrow(data) %||% max(l) %||% 1L
   out <- if(multiply_by_nsim) { do.call(fdist, c(list(n * nsim), input)) } else {
     Reduce("c", lapply(1:nsim, function(i) do.call(fdist, c(list(n), input))))
@@ -278,7 +277,6 @@ print.sim_draw <- function(x, ...) {
 
 #' @export
 print.sim_draw_multinominal <- function(x, ..., max = NULL) {
- # browser()
   max <- max %||% getOption("max.print", 99999L)
   M <- matrix(as.character(do.call("c", x)), ncol = length(x))
   Mdot <- matrix(".", ncol = ncol(M), nrow = nrow(M))

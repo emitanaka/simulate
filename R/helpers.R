@@ -2,7 +2,6 @@ eval_effects <- function(data, params, input) {
   n <- nrow(data) %||% 1L
   res <- data.frame(row.names = seq(n))
   prms <- unique(c(names(params), names(data)))
-  #browser()
   res <- sapply(prms, function(avar) true_effects(data[[avar]], params[[avar]], n),
                 USE.NAMES = TRUE, simplify = FALSE)
   if(is_formula(input)) {
@@ -34,7 +33,7 @@ prm_to_lower_level <- function(params, params_essential) {
 
 context_args <- function(input, params, data, validator = NULL) {
   lapply(validator, function(x) eval_tidy(x, data = input))
-  e <- new.env()
+  e <- list()
   e$data <- data
   e$input <- input
   e$params <- prm_to_lower_level(params, names(input))
@@ -59,7 +58,6 @@ is_sim_distribution <- function(x) {
 true_effects <- function(f, effects, n = 1L) {
   vlev <- levels(f) %||% sort(unique(f))
   res <- setNames(rep(0, length(vlev)), vlev)
-  #browser()
   if(is_sim_distribution(effects)) {
     simulate(effects, nsim = n)
   } else if(is.null(effects)) {
