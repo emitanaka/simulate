@@ -45,6 +45,7 @@ matrix_cs <- function(n, rho = 0, vars = 1, names = NULL, inverse_return = FALSE
 #' @describeIn matrix-constructors First order autoregressive order matrix.
 #' @export
 matrix_ar1 <- function(n, rho = 0, vars = 1, names = NULL, inverse_return = FALSE) {
+  #matrix_tp(n, rho = c(rho, rho^2, ...))
   out <- setup_matrix(n, names, diag = FALSE)
   exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) -
                     (1:n - 1))

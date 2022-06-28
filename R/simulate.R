@@ -1,4 +1,6 @@
 
+#' @export
+stats::simulate
 
 #' @export
 simulate.data.frame <- function(.data, ..., .cor = NULL, .empirical = FALSE, .seed = NULL) {

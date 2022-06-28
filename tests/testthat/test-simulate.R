@@ -5,9 +5,9 @@ test_that("simulate", {
   expect_equal({
     sim_form(~ p[1] * g1 + p[2] * g2 + p[3] * g3,
              data = data.frame(g1 = g1, g2 = g2, g3 = g2)) %>%
-      params(g1 = c(1, 1),
-             g2 = c(2, 2),
-             g3 = c(3, 3),
+      params(g1 = c(1, 10),
+             g2 = c(2, 20),
+             g3 = c(3, 30),
              p = sim_multinominal(1, c(0.2, 0.4, 0.4))) %>%
       simulate(seed = aseed) %>%
       table()/20000
@@ -92,16 +92,16 @@ test_that("simulate", {
 
   # TODO: fix needed for below
   sim4 <- df1 %>%
-    simulate(y = sim_normal(mean=~ grp1 + grp2,
-                            sd = 1) %>%
-               params("mean",
-                      grp1 =~ sim_normal(),
-                      grp2 =~ sim_t(3)))
+    simulate(y = sim_form(~grp1 + 3 * grp2) %>%
+               params(grp1 = sim_normal(0, 100),
+                      grp2 = sim_bernoulli(0.5)))
+
+  tapply(sim4$y, list(sim4$grp1, sim4$grp2), mean)
 
   sim5 <- df1 %>%
     simulate(y = sim_form(~grp1 + grp2) %>%
                params(grp1 = c("C" = 10, "A" = -20),
-                      grp2 =~ sim_normal(0, 1)))
+                      grp2 = sim_normal(0, 1)))
 
 
 })
