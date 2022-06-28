@@ -50,13 +50,13 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">correlation_matrix</span><span class="op">(</span>
-  <span class="va">...</span>,
-  .names <span class="op">=</span> <span class="cn">NULL</span>,
-  .upper <span class="op">=</span> <span class="cn">NULL</span>,
-  .byrow <span class="op">=</span> <span class="cn">TRUE</span>,
-  .check <span class="op">=</span> <span class="cn">TRUE</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">correlation_matrix</span><span class="op">(</span></span>
+<span>  <span class="va">...</span>,</span>
+<span>  .names <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .upper <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  .byrow <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  .check <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -66,18 +66,27 @@
 value in the upper triangle or lower triangle (not both) should be used.
 Use <code>.</code> for value of 1 in the diagonal entries and value of 0 in off-diagonal
 entries. For a n x n correlation matrix, there should be n x n values.</p></dd>
+
+
 <dt>.names</dt>
 <dd><p>The name of the variables.</p></dd>
+
+
 <dt>.upper</dt>
 <dd><p>A vector of values for the upper triangle values
 filled by row (or column if <code>.byrow = FALSE</code>. If <code>.upper</code> is defined then <code>...</code>
 is ignored.</p></dd>
+
+
 <dt>.byrow</dt>
 <dd><p>A logical value indicating whether the matrix is filled by
 row or column. The default is <code>TRUE</code>.</p></dd>
+
+
 <dt>.check</dt>
 <dd><p>A logical value to indicate if the correlation matrix is valid
 or not. This essentially equates to check that the matrix is semi-positive definite.</p></dd>
+
 </dl></div>
     <div id="see-also">
     <h2>See also</h2>
@@ -88,37 +97,37 @@ or not. This essentially equates to check that the matrix is semi-positive defin
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="fu">correlation_matrix</span><span class="op">(</span><span class="va">.</span>, <span class="fl">0.7</span>, <span class="va">.</span>,   <span class="va">.</span>,</span>
-<span class="r-in">                   <span class="va">.</span>,   <span class="va">.</span>, <span class="va">.</span>, <span class="fl">0.3</span>,</span>
-<span class="r-in">                   <span class="va">.</span>,   <span class="va">.</span>, <span class="va">.</span>,   <span class="va">.</span>,</span>
-<span class="r-in">                   <span class="va">.</span>,   <span class="va">.</span>, <span class="va">.</span>,   <span class="va">.</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">correlation_matrix</span><span class="op">(</span><span class="va">.</span>, <span class="fl">0.7</span>, <span class="va">.</span>,   <span class="va">.</span>,</span></span>
+<span class="r-in"><span>                   <span class="va">.</span>,   <span class="va">.</span>, <span class="va">.</span>, <span class="fl">0.3</span>,</span></span>
+<span class="r-in"><span>                   <span class="va">.</span>,   <span class="va">.</span>, <span class="va">.</span>,   <span class="va">.</span>,</span></span>
+<span class="r-in"><span>                   <span class="va">.</span>,   <span class="va">.</span>, <span class="va">.</span>,   <span class="va">.</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3] [,4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  1.0  0.7    0  0.0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.7  1.0    0  0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.0  0.0    1  0.0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.0  0.3    0  1.0</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu">correlation_matrix</span><span class="op">(</span>.upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.3</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">correlation_matrix</span><span class="op">(</span>.upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.3</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3] [,4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  1.0  0.7  0.1  0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.7  1.0  0.2 -0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.1  0.2  1.0 -0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.3 -0.1 -0.3  1.0</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu">correlation_matrix</span><span class="op">(</span>.upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.3</span><span class="op">)</span>,</span>
-<span class="r-in">                   .byrow <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">correlation_matrix</span><span class="op">(</span>.upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.7</span>, <span class="fl">0.1</span>, <span class="fl">0.3</span>, <span class="fl">0.2</span>, <span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                   .byrow <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      [,1] [,2] [,3] [,4]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  1.0  0.7  0.1  0.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.7  1.0  0.3 -0.1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.1  0.3  1.0 -0.3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.2 -0.1 -0.3  1.0</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu">correlation_matrix</span><span class="op">(</span>.upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">3</span><span class="op">)</span>, .names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">correlation_matrix</span><span class="op">(</span>.upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.2</span>, <span class="fl">3</span><span class="op">)</span>, .names <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     A   B   C</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A 1.0 0.2 0.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> B 0.2 1.0 0.2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> C 0.2 0.2 1.0</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -133,7 +142,7 @@ or not. This essentially equates to check that the matrix is semi-positive defin
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>
